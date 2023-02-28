@@ -65,6 +65,9 @@ Temporary Items
 .idea/**/gradle.xml
 .idea/**/libraries
 
+# Pycharm
+.idea
+
 # CMake
 cmake-build-debug/
 

@@ -11,6 +11,10 @@ Globals:
     Timeout: 3
     MemorySize: 128
     Tracing: Active
+    Environment:
+      Variables:
+        TABLE_NAME: Blogs
+        REGION: us-east-1
   Api:
     TracingEnabled: true
 
@@ -18,7 +22,7 @@ Resources:
   CreateBlogFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/create_blogs/
+      CodeUri: src/create_blog/
       Handler: app.lambda_handler
       Runtime: python3.9
       Events:
@@ -30,7 +34,66 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref BlogsTable
-
+  ListBlogsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/list_blogs/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Events:
+        ListBlogs:
+          Type: Api
+          Properties:
+            Path: /blogs/
+            Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BlogsTable
+  GetBlogFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/get_blog/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Events:
+        GetBlog:
+          Type: Api
+          Properties:
+            Path: /blogs/{id}
+            Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BlogsTable
+  UpdateBlogFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/update_blog/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Events:
+        UpdateBlog:
+          Type: Api
+          Properties:
+            Path: /blogs/{id}
+            Method: put
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BlogsTable
+  DeleteBlogFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/delete_blog/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Events:
+        DeleteBlog:
+          Type: Api
+          Properties:
+            Path: /blogs/{id}
+            Method: delete
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BlogsTable
   BlogsTable:
     Type: AWS::DynamoDB::Table
     Properties:

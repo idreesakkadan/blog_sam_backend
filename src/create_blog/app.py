@@ -5,26 +5,23 @@ import uuid
 from datetime import datetime
 
 
-def lambda_handler(message, context):
-    if 'body' not in message or message['httpMethod'] != 'POST':
+def lambda_handler(event, context):
+    if 'body' not in event or event['httpMethod'] != 'POST':
         return {
             'statusCode': 400,
             'headers': {},
             'body': json.dumps({'msg': 'Bad Request'})
         }
 
-    table_name = os.environ.get('TABLE', 'Blogs')
+    table_name = os.environ.get('TABLE-NAME', 'Blogs')
     region = os.environ.get('REGION', 'us-east-1')
-
-    print(region, table_name)
 
     blogs_table = boto3.resource(
         'dynamodb',
         region_name=region
     )
     table = blogs_table.Table(table_name)
-    blog_body = json.loads(message['body'])
-    print(blog_body)
+    blog_body = json.loads(event['body'])
 
     params = {
         'id': str(uuid.uuid4()),
@@ -42,5 +39,5 @@ def lambda_handler(message, context):
     return {
         'statusCode': 201,
         'headers': {},
-        'body': json.dumps({'msg': 'Blog created'})
+        'body': json.dumps({'msg': 'Blog created successfully'})
     }

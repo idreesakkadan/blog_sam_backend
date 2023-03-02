@@ -18,9 +18,9 @@ capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
 stack_name = "blog-sam-backend"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1nuzqw610axyv"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1flvuwgqh0lkr"
 s3_prefix = "blog-sam-backend"
-region = "us-east-1"
+region = "ap-south-1"
 disable_rollback = true
 image_repositories = []
 

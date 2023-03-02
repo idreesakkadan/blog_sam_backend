@@ -11,7 +11,7 @@ def lambda_handler(event, context):
             'body': json.dumps({'msg': 'Bad Request'})
         }
     table_name = os.environ.get('TABLE_NAME', 'Blogs')
-    region = os.environ.get('REGION', 'us-east-1')
+    region = os.environ.get('REGION')
 
     blogs_table = boto3.resource(
         'dynamodb',

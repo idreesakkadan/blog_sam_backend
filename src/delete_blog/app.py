@@ -13,7 +13,7 @@ def lambda_handler(event, context):
         }
 
     table_name = os.environ.get('TABLE-NAME', 'Blogs')
-    region = os.environ.get('REGION', 'us-east-1')
+    region = os.environ.get('REGION')
 
     blogs_table = boto3.resource(
         'dynamodb',

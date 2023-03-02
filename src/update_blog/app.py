@@ -4,6 +4,7 @@ import json
 
 
 def lambda_handler(event, context):
+    print("event:", event, "context:", context)
     if 'body' not in event or event['httpMethod'] != 'PUT':
         return {
             'statusCode': 400,
@@ -12,7 +13,7 @@ def lambda_handler(event, context):
         }
 
     table_name = os.environ.get('TABLE_NAME', 'Blogs')
-    region = os.environ.get('REGION', 'us-east-1')
+    region = os.environ.get('REGION')
 
     blogs_table = boto3.resource(
         'dynamodb',

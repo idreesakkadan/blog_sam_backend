@@ -24,6 +24,7 @@ def lambda_handler(event, context):
     blog_id = event['pathParameters']['id']
     blog_body = json.loads(event['body'])
 
+
     params = {
         'id': blog_id
     }

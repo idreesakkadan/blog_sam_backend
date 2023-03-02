@@ -14,11 +14,124 @@ Globals:
     Environment:
       Variables:
         TABLE_NAME: Blogs
-        REGION: us-east-1
+        REGION: ap-south-1
   Api:
     TracingEnabled: true
 
 Resources:
+
+  BlogUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: BlogUserPool
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+          StringAttributeConstraints:
+            MinLength: "5"
+            MaxLength: "200"
+        - Name: name
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+          StringAttributeConstraints:
+            MinLength: "1"
+            MaxLength: "200"
+
+# Create an application for authentication
+  BlogUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: BlogUserPool
+      UserPoolId: !Ref BlogUserPool
+      GenerateSecret: false
+      SupportedIdentityProviders:
+        - COGNITO
+      CallbackURLs:
+        - https://oauth.pstmn.io/v1/callback
+        - http://localhost:9000
+      LogoutURLs:
+        - https://oauth.pstmn.io/v1/callback
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows:
+        - code
+        - implicit # Implicit is only used for testing with postman
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+
+  BlogUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Ref AWS::StackName
+      UserPoolId: !Ref BlogUserPool
+
+  ApiAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/apigateway/AccessLog-Blog-APIs
+      RetentionInDays: 365
+
+  BlogApiGateway:
+    Type: AWS::Serverless::Api
+    AccessLogSetting:
+      DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'
+    Properties:
+      StageName: Dev
+#      BinaryMediaTypes:
+#        - "*/*"
+#      DefinitionBody:
+#        paths:
+#          /blogs:
+#            post:
+#              consumes:
+#                - application/json
+#                - multipart/form-data
+#              produces:
+#                - application/json
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt BlogUserPool.Arn
+
+
+
+  BlogS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: blog-attachments-bucket
+
+# TODO :NEED TO USE BlogUserPoolDomain TO signup amd Login
+#  RegisterUserFunction:
+#    Type: AWS::Serverless::Function
+#    Properties:
+#      CodeUri: src/user_management/
+#      Handler: register_user.lambda_handler
+#      Runtime: python3.9
+#      Events:
+#        RegisterUser:
+#          Type: Api
+#          Properties:
+#            Path: /register
+#            Method: post
+#      Environment:
+#        Variables:
+#          USER_POOL_CLIENT_ID: !Ref BlogUserPool
+
   CreateBlogFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -31,9 +144,13 @@ Resources:
           Properties:
             Path: /blogs
             Method: post
+            RestApiId: !Ref BlogApiGateway
+            Auth:
+              Authorizer: CognitoAuthorizer
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref BlogsTable
+
   ListBlogsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -46,9 +163,13 @@ Resources:
           Properties:
             Path: /blogs/
             Method: get
+            RestApiId: !Ref BlogApiGateway
+            Auth:
+              Authorizer: CognitoAuthorizer
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref BlogsTable
+
   GetBlogFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -61,9 +182,13 @@ Resources:
           Properties:
             Path: /blogs/{id}
             Method: get
+            RestApiId: !Ref BlogApiGateway
+            Auth:
+              Authorizer: CognitoAuthorizer
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref BlogsTable
+
   UpdateBlogFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -76,9 +201,13 @@ Resources:
           Properties:
             Path: /blogs/{id}
             Method: put
+            RestApiId: !Ref BlogApiGateway
+            Auth:
+              Authorizer: CognitoAuthorizer
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref BlogsTable
+
   DeleteBlogFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -91,9 +220,13 @@ Resources:
           Properties:
             Path: /blogs/{id}
             Method: delete
+            RestApiId: !Ref BlogApiGateway
+            Auth:
+              Authorizer: CognitoAuthorizer
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref BlogsTable
+
   BlogsTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -107,7 +240,23 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "1"
         WriteCapacityUnits: "1"
+#      Environment:
+#        Variables:
+#          S3-BUCKET: !Ref BlogS3Bucket
 
+#  FilesTable:
+#    Type: AWS::DynamoDB::Table
+#    Properties:
+#      TableName: "BlogFiles"
+#      AttributeDefinitions:
+#        - AttributeName: "id"
+#          AttributeType: "S"
+#      KeySchema:
+#        - AttributeName: "id"
+#          KeyType: "HASH"
+#      ProvisionedThroughput:
+#        ReadCapacityUnits: "1"
+#        WriteCapacityUnits: "1"
 
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group
@@ -133,10 +282,25 @@ Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+
+  Issuer:
+    Description: Url used for issuer on HTTP API JWT tokens
+    Value: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${BlogUserPool}
+
+  CognitoID:
+    Description: The Cognito UserPool ID
+    Value: !Ref BlogUserPool
+  CognitoClientID:
+    Description: The Cognito UserPool Client ID
+    Value: !Ref BlogUserPoolClient
+  CognitoDomainName:
+    Description: The Cognito Hosted UI Domain Name
+    Value: !Sub https://${BlogUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/login
+
   BlogsTable:
     Description: "DynamoDB Table"
     Value: !Ref BlogsTable
 
-  BlogsApi:
+  BlogApi:
     Description: API Gateway endpoint URL for Blogs function
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub "https://${BlogApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Dev/"

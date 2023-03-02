@@ -135,8 +135,8 @@ Resources:
   CreateBlogFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/create_blog/
-      Handler: app.lambda_handler
+      CodeUri: src/blog/
+      Handler: create_blog.lambda_handler
       Runtime: python3.9
       Events:
         CreateBlog:
@@ -154,8 +154,8 @@ Resources:
   ListBlogsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/list_blogs/
-      Handler: app.lambda_handler
+      CodeUri: src/blog/
+      Handler: list_blogs.lambda_handler
       Runtime: python3.9
       Events:
         ListBlogs:
@@ -173,8 +173,8 @@ Resources:
   GetBlogFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/get_blog/
-      Handler: app.lambda_handler
+      CodeUri: src/blog/
+      Handler: get_blog.lambda_handler
       Runtime: python3.9
       Events:
         GetBlog:
@@ -192,8 +192,8 @@ Resources:
   UpdateBlogFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/update_blog/
-      Handler: app.lambda_handler
+      CodeUri: src/blog/
+      Handler: update_blog.lambda_handler
       Runtime: python3.9
       Events:
         UpdateBlog:
@@ -211,8 +211,8 @@ Resources:
   DeleteBlogFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/delete_blog/
-      Handler: app.lambda_handler
+      CodeUri: src/blog/
+      Handler: delete_blog.lambda_handler
       Runtime: python3.9
       Events:
         DeleteBlog:

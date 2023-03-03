@@ -150,6 +150,23 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref BlogsTable
+        - CloudWatchLogsFullAccess
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+                - ses:VerifyEmailIdentity
+                - ses:GetIdentityVerificationAttributes
+              Resource: "*"
+        - Statement:
+            - Effect: Allow
+              Action:
+                - cognito-idp:ListUsers
+              Resource:
+                - !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${BlogUserPool}
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref BlogUserPool
 
   ListBlogsFunction:
     Type: AWS::Serverless::Function
@@ -286,7 +303,6 @@ Outputs:
   Issuer:
     Description: Url used for issuer on HTTP API JWT tokens
     Value: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${BlogUserPool}
-
   CognitoID:
     Description: The Cognito UserPool ID
     Value: !Ref BlogUserPool
@@ -297,9 +313,6 @@ Outputs:
     Description: The Cognito Hosted UI Domain Name
     Value: !Sub https://${BlogUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/login
 
-  BlogsTable:
-    Description: "DynamoDB Table"
-    Value: !Ref BlogsTable
 
   BlogApi:
     Description: API Gateway endpoint URL for Blogs function

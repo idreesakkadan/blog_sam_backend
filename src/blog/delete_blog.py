@@ -6,7 +6,6 @@ import json
 def lambda_handler(event, context):
 
     try:
-        # TODO : Only post-creator also has the option to delete the post.
         if 'pathParameters' not in event or event['httpMethod'] != 'DELETE':
             return {
                 'statusCode': 400,
@@ -28,6 +27,19 @@ def lambda_handler(event, context):
         params = {
             'id': blog_id
         }
+
+        # Only post-creator also has the option to delete the post.
+        user_email = event['requestContext']['authorizer']['claims']['email']
+        post_creator = table.get_item(Key=params)['Item']['created_by']
+        print(post_creator)
+
+        if user_email != post_creator:
+            return {
+                'statusCode': 403,
+                'headers': {},
+                'body': json.dumps(
+                    {'message': "You don't have the permission to delete this post. Only post creator can delete!!"})
+            }
 
         response = table.delete_item(
             Key=params

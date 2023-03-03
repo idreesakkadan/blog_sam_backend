@@ -115,22 +115,40 @@ Resources:
     Properties:
       BucketName: blog-attachments-bucket
 
-# TODO :NEED TO USE BlogUserPoolDomain TO signup amd Login
-#  RegisterUserFunction:
-#    Type: AWS::Serverless::Function
-#    Properties:
-#      CodeUri: src/user_management/
-#      Handler: register_user.lambda_handler
-#      Runtime: python3.9
-#      Events:
-#        RegisterUser:
-#          Type: Api
-#          Properties:
-#            Path: /register
-#            Method: post
-#      Environment:
-#        Variables:
-#          USER_POOL_CLIENT_ID: !Ref BlogUserPool
+  BlogFileUploadApi:
+    Type: AWS::Serverless::Api
+    AccessLogSetting:
+      DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'
+    Properties:
+      StageName: Dev
+      BinaryMediaTypes:
+        - "*/*"
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt BlogUserPool.Arn
+
+  UploadFileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/blog/
+      Handler: file_upload.lambda_handler
+      Runtime: python3.9
+      Environment:
+        Variables:
+          BUCKET_NAME: blog-attachments-bucket
+      Events:
+        UploadFileApi:
+          Type: Api
+          Properties:
+            Path: /{blog_id}/{filename}
+            Method: post
+            RestApiId: !Ref BlogFileUploadApi
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BlogsTable
+        - S3CrudPolicy:
+            BucketName: !Ref BlogS3Bucket
 
   CreateBlogFunction:
     Type: AWS::Serverless::Function
@@ -257,23 +275,6 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "1"
         WriteCapacityUnits: "1"
-#      Environment:
-#        Variables:
-#          S3-BUCKET: !Ref BlogS3Bucket
-
-#  FilesTable:
-#    Type: AWS::DynamoDB::Table
-#    Properties:
-#      TableName: "BlogFiles"
-#      AttributeDefinitions:
-#        - AttributeName: "id"
-#          AttributeType: "S"
-#      KeySchema:
-#        - AttributeName: "id"
-#          KeyType: "HASH"
-#      ProvisionedThroughput:
-#        ReadCapacityUnits: "1"
-#        WriteCapacityUnits: "1"
 
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group
@@ -312,8 +313,9 @@ Outputs:
   CognitoDomainName:
     Description: The Cognito Hosted UI Domain Name
     Value: !Sub https://${BlogUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/login
-
-
   BlogApi:
     Description: API Gateway endpoint URL for Blogs function
     Value: !Sub "https://${BlogApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Dev/"
+  BlogFileUploadApi:
+    Description: API Gateway endpoint URL for file upload function
+    Value: !Sub "https://${BlogFileUploadApi}.execute-api.${AWS::Region}.amazonaws.com/Dev/"

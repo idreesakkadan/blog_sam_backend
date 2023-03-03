@@ -3,6 +3,8 @@ import os
 
 CLIENT_ID = os.environ.get('USER_POOL_CLIENT_ID')
 
+# not using for now: Using cognito hosted ui for signup
+
 
 def lambda_handler(event, context):
     for field in ["email", "password", "name"]:

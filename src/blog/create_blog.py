@@ -40,9 +40,6 @@ def lambda_handler(event, context):
         #  sent mail to other users when a post is created
         sent_mail_to_other_creators(user_email)
 
-        # TODO: The post can have file attachments, which need to be stored in an S3 bucket
-        #  (Design the S3 hierarchy and corresponding DB mappings)
-
         print(response)
 
         return {
@@ -104,19 +101,20 @@ def sent_mail_to_other_creators(user_email):
     body_text = 'Hey\t\n\nI just posted a new blog. Please check it out.\n\nThank you!'
 
     # Send the email
-    response = ses_client.send_email(
-        Source=sender,
-        Destination={
-            'ToAddresses': email_addresses
-        },
-        Message={
-            'Subject': {
-                'Data': subject
+    if email_addresses:
+        response = ses_client.send_email(
+            Source=sender,
+            Destination={
+                'ToAddresses': email_addresses
             },
-            'Body': {
-                'Text': {
-                    'Data': body_text
+            Message={
+                'Subject': {
+                    'Data': subject
+                },
+                'Body': {
+                    'Text': {
+                        'Data': body_text
+                    }
                 }
             }
-        }
-    )
+        )

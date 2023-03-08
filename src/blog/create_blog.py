@@ -45,7 +45,7 @@ def lambda_handler(event, context):
         return {
             'statusCode': 201,
             'headers': {},
-            'body': json.dumps({'msg': 'Blog created successfully',
+            'body': json.dumps({'message': 'Blog created successfully',
                                 'id': params['id']})
 
         }

@@ -1,0 +1,268 @@
+{
+	"info": {
+		"_postman_id": "2df5e78f-b6bd-4077-89e3-9e54bfd6fa33",
+		"name": "SAM Blog Backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19239004"
+	},
+	"item": [
+		{
+			"name": "Create Blog",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Test blog 3\",\n    \"description\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{blog-endpoint}}/blogs/",
+					"host": [
+						"{{blog-endpoint}}"
+					],
+					"path": [
+						"blogs",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Blogs",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{blog-endpoint}}/blogs/",
+					"host": [
+						"{{blog-endpoint}}"
+					],
+					"path": [
+						"blogs",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Blog",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{blog-endpoint}}/blogs/{{uuid}}",
+					"host": [
+						"{{blog-endpoint}}"
+					],
+					"path": [
+						"blogs",
+						"{{uuid}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Blog",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"7th blog\",\n    \"description\": \"blah blah blah\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{blog-endpoint}}/blogs/{{uuid}}",
+					"host": [
+						"{{blog-endpoint}}"
+					],
+					"path": [
+						"blogs",
+						"{{uuid}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Blog",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{blog-endpoint}}/blogs/{{uuid}}",
+					"host": [
+						"{{blog-endpoint}}"
+					],
+					"path": [
+						"blogs",
+						"{{uuid}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sign up / LOGIN",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "Sign up / LOGIN",
+					"host": [
+						"Sign up "
+					],
+					"path": [
+						" LOGIN"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "file upload to s3",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "/home/idrees/Downloads/eops (2)"
+					}
+				},
+				"url": {
+					"raw": "{{file-upload}}/32597169-0f07-4b55-819d-e311b89d6701/eops",
+					"host": [
+						"{{file-upload}}"
+					],
+					"path": [
+						"32597169-0f07-4b55-819d-e311b89d6701",
+						"eops"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "clientId",
+				"value": "{{CognitoClientID}}",
+				"type": "string"
+			},
+			{
+				"key": "headerPrefix",
+				"value": "",
+				"type": "string"
+			},
+			{
+				"key": "challengeAlgorithm",
+				"value": "S256",
+				"type": "string"
+			},
+			{
+				"key": "redirect_uri",
+				"value": "https://oauth.pstmn.io/v1/callback",
+				"type": "string"
+			},
+			{
+				"key": "grant_type",
+				"value": "implicit",
+				"type": "string"
+			},
+			{
+				"key": "authUrl",
+				"value": "https://blog-sam-backend.auth.ap-south-1.amazoncognito.com/oauth2/authorize/",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			},
+			{
+				"key": "client_authentication",
+				"value": "header",
+				"type": "string"
+			},
+			{
+				"key": "accessTokenUrl",
+				"value": "https://blog-sam-backend.auth.ap-south-1.amazoncognito.com/oauth2/token/",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "blog-endpoint",
+			"value": "https://rfdhv4s6p3.execute-api.ap-south-1.amazonaws.com/Dev/"
+		},
+		{
+			"key": "CognitoClientID",
+			"value": "1ru69hni4mijqvkvdlj832pnf3"
+		},
+		{
+			"key": "file-upload",
+			"value": "https://110a1rgnig.execute-api.ap-south-1.amazonaws.com/Dev/"
+		}
+	]
+}

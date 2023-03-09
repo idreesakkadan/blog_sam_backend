@@ -36,6 +36,7 @@ def lambda_handler(event, context):
         response = table.put_item(
             Item=params
         )
+        # TODO: Need to add mapping to the s3 file
 
         #  sent mail to other users when a post is created
         sent_mail_to_other_creators(user_email)
